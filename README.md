@@ -21,6 +21,7 @@ Methods:
 3. 3d6 - No Mulligan
 4. 3d6 - Reroll 1's
 5. 2d6 + 6
+
 Method 5 is odd to me as the stat average comes out to like 14.5. Which I do not like, leaves little room for fun character
 building moments for the sake of party-building, or character ark progression. 
 
