@@ -7,12 +7,6 @@
 #include <fstream>
 using namespace std;
 
-/* Main issue is that the desired file streaming methodology of keeping the data of the previous run of code
-   but allowing for that previous data to be overwritten each time the code is run isn't working. 
-   I have narrowed it down to the way that the ofstream method is being done in line 250 */
-   
-/* I am completely open to edits, comments, and most any changes. So long as I can understand why that change is being made
-   Otherwise feel free to tear into this code. Thanks in advance */
 class Diceroller
 {
     private:
@@ -251,81 +245,85 @@ class Statgen:public virtual Diceroller //built inheritance here to for the cont
         {
             //doing file streaming here to monitor the vector outputs as each change occurs
             ofstream datafile;
-            datafile.open("Stat-data", ios::out /*| ios::app*/);
-            //This is what I think is why it's not working. 
-            
-            /* built pointers here so that the roll variables would be more secure
-            Could potentially be unnecessary */
-            int * ptr1 = &roll1;
-            int * ptr2 = &roll2;
-            int * ptr3 = &roll3;
-            int * ptr4 = &roll4;
-            
-            if(datafile.is_open())
+            datafile.open("Stat-data", ios::out);
+    
+            for(int i = 0; i < 3; i++)
             {
-                random_device rd; // obtain a random number from hardware
-                mt19937 gen(rd()); // seed the generator
-                uniform_int_distribution<> distr(1, 6); // define the range
+               int *ptr1 = &roll1;
+               int *ptr2 = &roll2;
+               int *ptr3 = &roll3;
+               int *ptr4 = &roll4;
+        
+               if (datafile.is_open()) 
+               {
+                  random_device rd;
+                  mt19937 gen(rd());
+                  uniform_int_distribution<> distr(1, 6);
             
-                *ptr1 = distr(gen);
-                *ptr2 = distr(gen);
-                *ptr3 = distr(gen);
-                *ptr4 = distr(gen);
+                  *ptr1 = distr(gen);
+                  *ptr2 = distr(gen);
+                  *ptr3 = distr(gen);
+                  *ptr4 = distr(gen);
             
-                totalRoll.push_back(*ptr1);
-                totalRoll.push_back(*ptr2);
-                totalRoll.push_back(*ptr3);
-                totalRoll.push_back(*ptr4);
+                  totalRoll.push_back(*ptr1);
+                  totalRoll.push_back(*ptr2);
+                  totalRoll.push_back(*ptr3);
+                  totalRoll.push_back(*ptr4);
             
-                cout << "\nInitial Vector: ";
-                for(int i=0; i < totalRoll.size(); i++)
-                    cout << totalRoll.at(i) << ' ';
-                cout << "\n";
-                
-                datafile << "\nInitial Vector: ";
-                for(int i=0; i < totalRoll.size(); i++)
-                    datafile << totalRoll.at(i) << ' ';
-                datafile << "\n";
+                  cout << "\nInitial Roll: ";
+                  for (int i = 0; i < totalRoll.size(); i++)
+                     cout << totalRoll.at(i) << ' ';
+                  cout << "\n";
+
+                  datafile << "\nInitial Vector: ";
+                  for (int i = 0; i < totalRoll.size(); i++)
+                     datafile << totalRoll.at(i) << ' ';
+                  datafile << "\n";
+          
+                  auto m = min_element(totalRoll.begin(), totalRoll.end());
+                  totalRoll.erase(m);
             
-                auto m = min_element(totalRoll.begin(), totalRoll.end());
-                totalRoll.erase(m);
+                  cout << "Drop Lowest Roll: ";
+                  for (int i = 0; i < totalRoll.size(); i++)
+                     cout << totalRoll.at(i) << ' ';
+                  cout << "\n";
             
-                cout << "Editted Vector: ";
-                for(int i=0; i < totalRoll.size(); i++)
-                    cout << totalRoll.at(i) << ' ';
-                cout << "\n";
+                  datafile << "Editted Vector: ";
+                  for (int i = 0; i < totalRoll.size(); i++)
+                     datafile << totalRoll.at(i) << ' ';
+                  datafile << "\n";
             
-                datafile << "Editted Vector: ";
-                for(int i=0; i < totalRoll.size(); i++)
-                    datafile << totalRoll.at(i) << ' ';
-                datafile << "\n";
+                  stat = accumulate(totalRoll.begin(), totalRoll.end(),
+                        decltype(totalRoll)::value_type(0));
             
-                stat = accumulate(totalRoll.begin(), totalRoll.end(), 
-                            decltype(totalRoll)::value_type(0));
-            
-                cout << "Final Stat: " << stat;
-                datafile << "Final Stat: " << stat << endl;
+                  cout << "Final Stat: " << stat;
+                  datafile << "Final Stat: " << stat << endl;
+               }
+        
+               else
+               {
+                  cout << "Failed to open Data File\n";
+                  cout << "Exiting Program";
+                  exit(1);
+               }
+        
+               ptr1 = nullptr;
+               ptr2 = nullptr;
+               ptr3 = nullptr;
+               ptr4 = nullptr; 
+        
+               delete ptr1;
+               delete ptr2;
+               delete ptr3;
+               delete ptr4;
+        
+               totalRoll.erase(totalRoll.begin(), totalRoll.end());
             }
+    
             datafile.close();
-            
-            ptr1 = nullptr;
-            ptr2 = nullptr;
-            ptr3 = nullptr;
-            ptr4 = nullptr;
-            
-            delete ptr1;
-            delete ptr2;
-            delete ptr3;
-            delete ptr4;
-          /* Always got yelled at by my CS teacher to not leave hanging pointers 
-             So I am deleting the pointers */
-            
-            totalRoll.erase(totalRoll.begin(), totalRoll.end());
-            /* deleting vector contents here so that elements contained within don't compound 
-               leading to impossible levels of stats */
-            
-            return stat; //returning stat value to be assigned to each stat
-        }
+
+            return stat;
+        }  
         
         int method2()
         {
@@ -338,21 +336,30 @@ class Statgen:public virtual Diceroller //built inheritance here to for the cont
             roll2 = distr(gen);
             roll3 = distr(gen);
             roll4 = distr(gen);
-            
-            if(roll1 == 1)
-                roll1 = distr(gen);
-            else if(roll2 == 1)
-                roll2 = distr(gen);
-            else if(roll3 == 1)
-                roll3 = distr(gen);
-            else if(roll4 == 1)
-                roll4 = distr(gen);
-                
-            
+          
+           
             totalRoll.push_back(roll1);
             totalRoll.push_back(roll2);
             totalRoll.push_back(roll3);
             totalRoll.push_back(roll4);
+           
+           if (*ptr1 == 1)
+                  { 
+                     replace(totalRoll.begin(), totalRoll.end(), 1, distr(gen)); 
+                  }
+                  if (*ptr2 == 1)
+                  { 
+                     replace(totalRoll.begin(), totalRoll.end(), 1, distr(gen));
+                  }
+                  if (*ptr3 == 1)
+                  { 
+                     replace(totalRoll.begin(), totalRoll.end(), 1, distr(gen));
+                  }
+                  if (*ptr4 == 1)
+                  { 
+                     replace(totalRoll.begin(), totalRoll.end(), 1, distr(gen));
+                  }
+            
             
             auto m = min_element(totalRoll.begin(), totalRoll.end());
             totalRoll.erase(m);
