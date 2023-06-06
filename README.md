@@ -7,7 +7,7 @@ The Die Roller was the original idea for this code but a bored ADHD tangent had 
 As it stands currently, the best way that I could get the code to compile was to integrate a series of inheritance between
 each class. I do not believe that this is truly necessary but as it stands, I plan on keeping it this way.
 
-The Die Roller is focused on the main die used in D&D
+The Die Roller is focused on the main die used in D&D 5e
 Those being: d4, d6, d8, d10, d12, d20, d100. 
 However I also included Percentile, which as someone pointed out to me, is redundant. I do not care. 
 I do plan on building this function out more so that the user can determine the die size to roll down the road.
